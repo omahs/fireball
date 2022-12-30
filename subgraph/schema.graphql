@@ -1,0 +1,6 @@
+type Parcel @entity {
+    # parcel token id
+    id: ID!
+    lastClaimedAlchemica: BigInt
+    owner: Bytes
+}

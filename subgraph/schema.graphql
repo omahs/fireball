@@ -1,6 +1,28 @@
-type Parcel @entity {
-    # parcel token id
+type Player @entity {
+    "player address"
     id: ID!
-    lastClaimedAlchemica: BigInt
-    owner: Bytes
+    parcels: [Parcel!]! @derivedFrom(field: "owner")
+    parcelsCount: Int!
+}
+
+type Parcel @entity {
+    "parcel token id"
+    id: ID!
+    parcelId: String
+    parcelHash: String
+
+    owner: Player!
+    district: BigInt
+    size: BigInt
+
+    fudBoost: BigInt
+    fomoBoost: BigInt
+    alphaBoost: BigInt
+    kekBoost: BigInt
+
+    lastChanneled: BigInt
+    lastClaimed: BigInt
+
+    coordinateX: BigInt
+    coordinateY: BigInt
 }

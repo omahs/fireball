@@ -29,7 +29,6 @@ export function handleMintParcel(event: MinParcelEvent): void {
     // parcel.owner = event.params._owner.toHexString();
     const contract = RealmDiamond.bind(event.address);
     const _parcelInfo = contract.try_getParcelInfo(event.params._tokenId);
-    const _survey = contract.try_getRealmAlchemica(event.params._tokenId);
 
     if (!_parcelInfo.reverted) {
         const metadata = _parcelInfo.value;
@@ -43,8 +42,6 @@ export function handleMintParcel(event: MinParcelEvent): void {
 
         parcel.boosts = metadata.boost;
     }
-
-    // if (!_survey.reverted)
 
     player.parcelsCount = player.parcelsCount + 1;
 
@@ -69,18 +66,18 @@ export function handleTransfer(event: TransferEvent): void {
 export function handleStartSurveying(event: StartSurveyingEvent): void {
     // const parcel = loadOrCreateParcel(event.params._realmId);
 
-    log.error(`surveying: parcel - {}, round - {}`, [event.params._realmId.toString(), event.params._round.toString()]);
+    log.error('surveying: parcel - {}, round - {}', [event.params._realmId.toString(), event.params._round.toString()]);
 
     const contract = RealmDiamond.bind(event.address);
     // const _survey = contract.try_getRealmAlchemica(event.params._realmId); // ? parcel remaining alchemica
     const _survey = contract.try_getRoundAlchemica(event.params._realmId, event.params._round); // ? parcel round alchemica
 
     if (!_survey.reverted) {
-        log.error(`RESPONSE: parcel - {}, data - {}`, [event.params._realmId.toString(), _survey.value.toString()]);
+        log.error('RESPONSE: parcel - {}, data - {}', [event.params._realmId.toString(), _survey.value.toString()]);
     }
 }
 
 export function handleSurveyingRoundProgressed(event: SurveyingRoundProgressedEvent): void {
     // ! Triggered when diamond owner increment the surveying round (basically should show current round)
-    log.error(`proggressed: new round - {}`, [event.params._newRound.toString()]);
+    log.error('proggressed: new round - {}', [event.params._newRound.toString()]);
 }

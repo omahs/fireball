@@ -1,7 +1,7 @@
 type Player @entity {
     "player address"
     id: ID!
-    parcels: [Parcel!]! @derivedFrom(field: "owner")
+    # parcels: [Parcel!]! @derivedFrom(field: "owner")
     parcelsCount: Int!
 }
 
@@ -11,18 +11,16 @@ type Parcel @entity {
     parcelId: String
     parcelHash: String
 
-    owner: Player!
+    # owner: Player!
     district: BigInt
     size: BigInt
-
-    fudBoost: BigInt
-    fomoBoost: BigInt
-    alphaBoost: BigInt
-    kekBoost: BigInt
+    coordinateX: BigInt
+    coordinateY: BigInt
 
     lastChanneled: BigInt
     lastClaimed: BigInt
 
-    coordinateX: BigInt
-    coordinateY: BigInt
+    "fud, fomo, alpha, kek"
+    boosts: [BigInt!]
+    surveys: [BigInt!] # TODO: split surveys for rounds
 }

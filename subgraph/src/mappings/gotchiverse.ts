@@ -1,8 +1,11 @@
+import { log } from '@graphprotocol/graph-ts';
 import {
     AlchemicaClaimed as AlchemicaClaimedEvent,
     ChannelAlchemica as ChannelAlchemicaEvent,
     gotchiverse as RealmDiamond,
     MintParcel as MinParcelEvent,
+    StartSurveying as StartSurveyingEvent,
+    SurveyingRoundProgressed as SurveyingRoundProgressedEvent,
     Transfer as TransferEvent
 } from '../../generated/gotchiverse/gotchiverse';
 import { loadOrCreateParcel, loadOrCreatePlayer } from '../helpers';
@@ -23,13 +26,13 @@ export function handleMintParcel(event: MinParcelEvent): void {
     const parcel = loadOrCreateParcel(event.params._tokenId);
     const player = loadOrCreatePlayer(event.params._owner);
 
-    parcel.owner = event.params._owner.toHexString();
+    // parcel.owner = event.params._owner.toHexString();
     const contract = RealmDiamond.bind(event.address);
     const _parcelInfo = contract.try_getParcelInfo(event.params._tokenId);
+    const _survey = contract.try_getRealmAlchemica(event.params._tokenId);
 
     if (!_parcelInfo.reverted) {
         const metadata = _parcelInfo.value;
-        const boosts = metadata.boost;
 
         parcel.parcelId = metadata.parcelId;
         parcel.parcelHash = metadata.parcelAddress;
@@ -38,11 +41,10 @@ export function handleMintParcel(event: MinParcelEvent): void {
         parcel.coordinateX = metadata.coordinateX;
         parcel.coordinateY = metadata.coordinateY;
 
-        parcel.fudBoost = boosts[0];
-        parcel.fomoBoost = boosts[1];
-        parcel.alphaBoost = boosts[2];
-        parcel.kekBoost = boosts[3];
+        parcel.boosts = metadata.boost;
     }
+
+    // if (!_survey.reverted)
 
     player.parcelsCount = player.parcelsCount + 1;
 
@@ -57,9 +59,28 @@ export function handleTransfer(event: TransferEvent): void {
 
     prevOwner.parcelsCount = prevOwner.parcelsCount - 1;
     nextOwner.parcelsCount = nextOwner.parcelsCount + 1;
-    parcel.owner = event.params._to.toHexString();
+    // parcel.owner = event.params._to.toHexString();
 
     prevOwner.save();
     nextOwner.save();
     parcel.save();
+}
+
+export function handleStartSurveying(event: StartSurveyingEvent): void {
+    // const parcel = loadOrCreateParcel(event.params._realmId);
+
+    log.error(`surveying: parcel - {}, round - {}`, [event.params._realmId.toString(), event.params._round.toString()]);
+
+    const contract = RealmDiamond.bind(event.address);
+    // const _survey = contract.try_getRealmAlchemica(event.params._realmId); // ? parcel remaining alchemica
+    const _survey = contract.try_getRoundAlchemica(event.params._realmId, event.params._round); // ? parcel round alchemica
+
+    if (!_survey.reverted) {
+        log.error(`RESPONSE: parcel - {}, data - {}`, [event.params._realmId.toString(), _survey.value.toString()]);
+    }
+}
+
+export function handleSurveyingRoundProgressed(event: SurveyingRoundProgressedEvent): void {
+    // ! Triggered when diamond owner increment the surveying round (basically should show current round)
+    log.error(`proggressed: new round - {}`, [event.params._newRound.toString()]);
 }
